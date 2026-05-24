@@ -30,7 +30,7 @@ jobs:
       - name: Run tests
         run: |
           pip install pytest black
-          pytest test_main.py
+          pytest ./app/test_main.py
       
       - name: Lint with flake8
         run:
