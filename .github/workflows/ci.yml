@@ -45,6 +45,6 @@ jobs:
       - name: Docker Build and Push
         uses: docker/build-push-action@v5
         with:
-          context: ./app         # where the Dockerfile lives
+          context: .         # where the Dockerfile lives
           push: ${{ github.ref == 'refs/heads/main' }}  # only push on main, not PRs
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/students-api:latest
