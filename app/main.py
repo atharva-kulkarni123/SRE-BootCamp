@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
-from services import fetch_data, fetch_by_id, update_record, add_student, init_db
+from services import fetch_data, fetch_by_id, update_record, add_student, init_db, delete_student
 from schemas import studentBase
+from pydantic import ValidationError
 
 app = Flask(__name__)
 init_db()
@@ -28,9 +29,19 @@ def update_record_by_id(student_id):
 @app.route("/add", methods=["POST"])
 def add_record_to_database():
     payload = request.get_json()
-    entry = studentBase(**payload)
+    try:
+        entry = studentBase(**payload)
+    except ValidationError as e:
+        return jsonify({"error": e.errors()}), 422
     add_student(entry.model_dump())
     return jsonify({"Message": "Record added Successfully"})
+
+@app.route("/delete/<int:student_id>", methods=["DELETE"])
+def delete_record(student_id):
+    deleted = delete_student(student_id)
+    if not deleted:
+        return jsonify({"error": f"No record with id:{student_id} found"}), 404
+    return jsonify({"Message": f"Record {student_id} deleted successfully"})
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True)

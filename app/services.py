@@ -82,3 +82,13 @@ def add_student(entry: dict) -> bool:
     cursor.close()
     conn.close()
     return True
+
+def delete_student(student_id: int) -> bool:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM students WHERE student_id = %s RETURNING student_id;", (student_id,))
+    deleted = cursor.fetchone()
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return deleted is not None
