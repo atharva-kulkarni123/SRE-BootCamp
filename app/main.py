@@ -4,7 +4,6 @@ from schemas import studentBase
 from pydantic import ValidationError
 
 app = Flask(__name__)
-init_db()
 
 @app.route("/", methods=["GET"])
 def home():
@@ -44,4 +43,5 @@ def delete_record(student_id):
     return jsonify({"Message": f"Record {student_id} deleted successfully"})
 
 if __name__ == '__main__':
+    init_db()
     app.run(host="0.0.0.0", debug=True)
