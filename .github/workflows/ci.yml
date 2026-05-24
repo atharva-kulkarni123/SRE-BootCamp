@@ -25,4 +25,5 @@ jobs:
       - name: Install Dependencies
         run: | 
           python -m pip install --upgrade pip
-          pip install --no-cache-dir -r requirements.txtgit statu
+          pip install --no-cache-dir -r requirements.txt
+      
