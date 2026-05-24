@@ -4,7 +4,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      DATABASE_URL: postgresql://postgres:secret@db:5432/students_db
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
     depends_on:
       db:
         condition: service_healthy   # wait until Postgres is actually ready
@@ -12,9 +12,9 @@ services:
   db:
     image: postgres:16
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: secret
-      POSTGRES_DB: students_db
+      POSTGRES_USER: ${{ secrets.DB_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      POSTGRES_DB: ${{ secrets.DB_NAME }}
     volumes:
       - postgres_data:/var/lib/postgresql/data  # data survives container restarts
     healthcheck:
