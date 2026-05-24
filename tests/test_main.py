@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch
-from main import app
+from app.main import app
 
 
 @pytest.fixture
