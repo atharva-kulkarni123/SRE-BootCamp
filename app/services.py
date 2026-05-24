@@ -7,8 +7,10 @@ DATABASE_URL = os.environ.get("DATABASE_URL")
 # Set this env variable before running:
 # export DATABASE_URL="postgresql://username:password@localhost:5432/students_db"
 
+
 def get_connection():
     return psycopg2.connect(DATABASE_URL)
+
 
 def init_db():
     conn = get_connection()
@@ -63,7 +65,7 @@ def update_record(student_id: int, updates: dict) -> dict:
 
     cursor.execute(
         "UPDATE students SET student_name=%s, age=%s, standard=%s WHERE student_id=%s;",
-        (record["student_name"], record["age"], record["standard"], student_id)
+        (record["student_name"], record["age"], record["standard"], student_id),
     )
     conn.commit()
     cursor.close()
@@ -76,17 +78,21 @@ def add_student(entry: dict) -> bool:
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO students (student_name, age, standard) VALUES (%s, %s, %s);",
-        (entry["student_name"], entry["age"], entry["standard"])
+        (entry["student_name"], entry["age"], entry["standard"]),
     )
     conn.commit()
     cursor.close()
     conn.close()
     return True
 
+
 def delete_student(student_id: int) -> bool:
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM students WHERE student_id = %s RETURNING student_id;", (student_id,))
+    cursor.execute(
+        "DELETE FROM students WHERE student_id = %s RETURNING student_id;",
+        (student_id,),
+    )
     deleted = cursor.fetchone()
     conn.commit()
     cursor.close()

@@ -12,6 +12,7 @@ def client():
 
 # ── Home ────────────────────────────────────────────────────────────────────
 
+
 def test_home(client):
     res = client.get("/")
     assert res.status_code == 200
@@ -20,10 +21,11 @@ def test_home(client):
 
 # ── Fetch all ───────────────────────────────────────────────────────────────
 
+
 def test_fetch_all_returns_list(client):
     mock_data = [
         {"student_id": 1, "student_name": "Alice", "age": 20, "standard": 10},
-        {"student_id": 2, "student_name": "Bob",   "age": 21, "standard": 11},
+        {"student_id": 2, "student_name": "Bob", "age": 21, "standard": 11},
     ]
     with patch("main.fetch_data", return_value=mock_data):
         res = client.get("/fetch")
@@ -40,6 +42,7 @@ def test_fetch_all_empty(client):
 
 # ── Fetch by ID ─────────────────────────────────────────────────────────────
 
+
 def test_fetch_by_id_found(client):
     mock_record = {"student_id": 1, "student_name": "Alice", "age": 20, "standard": 10}
     with patch("main.fetch_by_id", return_value=mock_record):
@@ -49,7 +52,9 @@ def test_fetch_by_id_found(client):
 
 
 def test_fetch_by_id_not_found(client):
-    with patch("main.fetch_by_id", return_value=({"error": "No record with id:99 found"}, 404)):
+    with patch(
+        "main.fetch_by_id", return_value=({"error": "No record with id:99 found"}, 404)
+    ):
         res = client.get("/fetch/99")
         assert res.status_code == 200
         data = res.get_json()
@@ -57,6 +62,7 @@ def test_fetch_by_id_not_found(client):
 
 
 # ── Add student ─────────────────────────────────────────────────────────────
+
 
 def test_add_student_success(client):
     payload = {"student_name": "Charlie", "age": 19, "standard": 9}
@@ -84,6 +90,7 @@ def test_add_student_wrong_type(client):
 
 # ── Update student ──────────────────────────────────────────────────────────
 
+
 def test_update_record_success(client):
     updated = {"student_id": 1, "student_name": "Alice", "age": 22, "standard": 10}
     with patch("main.update_record", return_value=updated):
@@ -93,13 +100,17 @@ def test_update_record_success(client):
 
 
 def test_update_record_not_found(client):
-    with patch("main.update_record", return_value=({"error": "No record with id:99 found"}, 404)):
+    with patch(
+        "main.update_record",
+        return_value=({"error": "No record with id:99 found"}, 404),
+    ):
         res = client.post("/update/99", json={"age": 22})
         assert res.status_code == 200
         assert "error" in res.get_json()[0]
 
 
 # ── Delete student ──────────────────────────────────────────────────────────
+
 
 def test_delete_student_success(client):
     with patch("main.delete_student", return_value=True):
