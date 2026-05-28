@@ -1,0 +1,32 @@
+app:
+  replicaCount: 2
+  flaskEnv: development
+db: 
+  replicaCount: 1
+image:
+  repository: atharvak2427/students-api
+  tag: latest
+  pullPolicy: IfNotPresent
+
+appservice:
+  type: NodePort
+  port: 5000
+  nodePort: 30080
+  containerPort: 5000
+  targetport: 5000
+
+database:
+  host: postgres-service.database.svc.cluster.local
+  port: 5432
+  name: students_db
+  user: postgres
+
+vault:
+  server: http://vault.vault:8200
+  path: secret
+  secretKey: database
+
+postgres:
+  enabled: true
+  image: postgres:16
+  replicas: 1

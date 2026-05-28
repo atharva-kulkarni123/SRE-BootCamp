@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: application
+data:
+  DB_USER: {{ .Values.database.user }}
+  DB_NAME: {{ .Values.database.name }}
+  DB_HOST: {{ .Values.database.host }}
+  FLASK_ENV: {{ .Values.app.flaskEnv }}
+  DB_PORT: "{{ .Values.database.port }}"
