@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgre-db
+  namespace: database
+  labels:
+    db: postgre
+spec:
+  selector:
+    matchLabels:  
+      app: db
+  replicas: {{ .Values.db.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      nodeSelector:
+        role: database
+      containers:
+      - name: postgre-db
+        image: postgres:16
+        ports:
+        - containerPort: {{ .Values.database.port }}
+          name: db
+        env:
+          - name: POSTGRES_USER
+            valueFrom:
+              configMapKeyRef:
+                name: db-config
+                key: DB_USER
+          - name: POSTGRES_DB
+            valueFrom:
+              configMapKeyRef:
+                name: db-config
+                key: DB_NAME
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: DB_PASSWORD
+        volumeMounts:
+          - name: postgres-storage
+            mountPath: /var/lib/postgresql/data
+        readinessProbe:
+          tcpSocket:
+            port: 5432
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        livenessProbe:
+          tcpSocket:
+            port: 5432
+          initialDelaySeconds: 15
+          periodSeconds: 10
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-storage
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi

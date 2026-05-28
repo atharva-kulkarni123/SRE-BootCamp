@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-application
+  namespace: application
+  labels: 
+    app: web-application
+spec:
+  replicas: {{ .Values.app.replicaCount }}
+  selector:
+    matchLabels:             
+      app: web-application
+  template:       
+    metadata:
+      labels:
+        app: web-application 
+    spec:
+      nodeSelector:
+        role: app
+      containers:
+      - name: web-application
+        image: atharvak2427/api-app:latest
+        ports:
+        - containerPort: {{ .Values.appservice.containerPort }}
+        env:
+          - name: DB_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: app-config
+                key: DB_HOST
+          - name: DB_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: app-config
+                key: DB_PORT
+          - name: DB_USER
+            valueFrom:
+              configMapKeyRef:
+                name: app-config
+                key: DB_USER
+          - name: DB_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: app-config
+                key: DB_NAME
+          - name: FLASK_ENV
+            valueFrom:
+              configMapKeyRef:
+                name: app-config
+                key: FLASK_ENV
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: app-secret
+                key: DB_PASSWORD
+          - name: DATABASE_URL
+            value: "postgresql://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
