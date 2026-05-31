@@ -48,7 +48,8 @@ jobs:
       # ── Stage 7: Semantic Release ───────────────────────────────
       - name: Semantic Release
         id: semantic
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          dry_run: true
         uses: cycjimmy/semantic-release-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
