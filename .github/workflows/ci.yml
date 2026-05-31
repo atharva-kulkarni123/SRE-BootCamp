@@ -55,3 +55,4 @@ jobs:
           push: ${{ github.ref == 'refs/heads/main' }}   # only push on main, not PRs
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/students-api:${{ steps.semantic.outputs.new_release_version }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/students-api:latest 
