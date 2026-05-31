@@ -19,13 +19,20 @@ spec:
         role: app
       containers:
       - name: web-application
-        image: atharvak2427/api-app:latest
+        image: atharvak2427/updated-student-api:latest
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
         ports:
         - containerPort: {{ .Values.appservice.containerPort }}
         env:
           - name: DB_HOST
             valueFrom:
-              configMapKeyRef:
+              configMapKeyRef:  
                 name: app-config
                 key: DB_HOST
           - name: DB_PORT
