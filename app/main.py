@@ -9,9 +9,10 @@ from services import (
 )
 from schemas import studentBase
 from pydantic import ValidationError
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
-
+metrics = PrometheusMetrics(app)
 
 @app.route("/", methods=["GET"])
 def home():
@@ -58,4 +59,4 @@ def delete_record(student_id):
 
 if __name__ == "__main__":
     init_db()
-    app.run(host="0.0.0.0", debug=True)
+    app.run(host="0.0.0.0", port=5000)
