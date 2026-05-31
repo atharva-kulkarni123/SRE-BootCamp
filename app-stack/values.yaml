@@ -15,6 +15,7 @@ appservice:
   containerPort: 5000
   targetport: 5000
 
+
 database:
   host: postgres-service.database.svc.cluster.local
   port: 5432
