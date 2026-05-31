@@ -1,3 +1,5 @@
 flask
 psycopg2-binary
 pydantic
+prometheus-flask-exporter
+gunicorn

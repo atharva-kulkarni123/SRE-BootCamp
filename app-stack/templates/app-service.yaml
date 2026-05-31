@@ -3,11 +3,14 @@ kind: Service
 metadata:
   name: web-application-service
   namespace: application
+  labels:
+    app: web-application-service
 spec:
   type: {{ .Values.appservice.type }}
   selector:
     app: web-application
   ports:
-  - port: {{ .Values.appservice.port }}
+  - name: http
+    port: {{ .Values.appservice.port }}
     targetPort: {{ .Values.appservice.targetport }}
     nodePort: {{ .Values.appservice.nodePort }}
