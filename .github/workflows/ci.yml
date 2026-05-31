@@ -41,10 +41,17 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Semantic Release
+        id: semantic
+        uses: cycjimmy/semantic-release-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Docker Build and Push
+      - name: Build Docker Image
         uses: docker/build-push-action@v5
         with:
-          context: .         # where the Dockerfile lives
-          push: ${{ github.ref == 'refs/heads/main' }}  # only push on main, not PRs
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/students-api:latest
+          context: .                                     # where the Dockerfile lives
+          push: ${{ github.ref == 'refs/heads/main' }}   # only push on main, not PRs
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/students-api:${{ steps.semantic.outputs.new_release_version }}
