@@ -36,39 +36,15 @@ jobs:
         run:
           black .
       
-            # ── Stage 6: Node setup for semantic-release ────────────────
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
- 
-      - name: Install semantic-release dependencies
-        run: npm ci    # reads package-lock.json — faster and deterministic than npm install
- 
-      # ── Stage 7: Semantic Release ───────────────────────────────
-      - name: Semantic Release
-        id: semantic
-        with:
-          dry_run: true
-        uses: cycjimmy/semantic-release-action@v4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
- 
-      # ── Stage 8: Docker Login ───────────────────────────────────
       - name: Docker Login
-        if: steps.semantic.outputs.new_release_published == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
- 
-      # ── Stage 9: Docker Build & Push ────────────────────────────
-      - name: Build Docker Image
-        if: steps.semantic.outputs.new_release_published == 'true'
+
+      - name: Docker Build and Push
         uses: docker/build-push-action@v5
         with:
-          context: .
-          push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/students-api:${{ steps.semantic.outputs.new_release_version }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/students-api:latest
+          context: .         # where the Dockerfile lives
+          push: ${{ github.ref == 'refs/heads/main' }}  # only push on main, not PRs
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/students-api:latest
