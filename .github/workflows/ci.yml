@@ -52,7 +52,7 @@ jobs:
           dry_run: true
         uses: cycjimmy/semantic-release-action@v4
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
  
       # ── Stage 8: Docker Login ───────────────────────────────────
       - name: Docker Login
