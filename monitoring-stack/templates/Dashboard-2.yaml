@@ -35,33 +35,685 @@ data:
         ]
       },
       "panels": [
-        { "id": 1, "type": "row", "title": "Overview", "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 }, "collapsed": false },
-        { "id": 2, "type": "stat", "title": "Running Pods", "datasource": "Prometheus", "gridPos": { "x": 0, "y": 1, "w": 4, "h": 4 }, "options": { "colorMode": "background" }, "fieldConfig": { "defaults": { "thresholds": { "steps": [ { "color": "red", "value": 0 }, { "color": "green", "value": 1 } ] } } }, "targets": [ { "expr": "count(kube_pod_status_phase{namespace=\"$namespace\", phase=\"Running\"})", "legendFormat": "Running" } ] },
-        { "id": 3, "type": "stat", "title": "Pending Pods", "datasource": "Prometheus", "gridPos": { "x": 4, "y": 1, "w": 4, "h": 4 }, "options": { "colorMode": "background" }, "fieldConfig": { "defaults": { "thresholds": { "steps": [ { "color": "green", "value": 0 }, { "color": "yellow", "value": 1 }, { "color": "red", "value": 3 } ] } } }, "targets": [ { "expr": "count(kube_pod_status_phase{namespace=\"$namespace\", phase=\"Pending\"}) or vector(0)", "legendFormat": "Pending" } ] },
-        { "id": 4, "type": "stat", "title": "Failed Pods", "datasource": "Prometheus", "gridPos": { "x": 8, "y": 1, "w": 4, "h": 4 }, "options": { "colorMode": "background" }, "fieldConfig": { "defaults": { "thresholds": { "steps": [ { "color": "green", "value": 0 }, { "color": "red", "value": 1 } ] } } }, "targets": [ { "expr": "count(kube_pod_status_phase{namespace=\"$namespace\", phase=\"Failed\"}) or vector(0)", "legendFormat": "Failed" } ] },
-        { "id": 5, "type": "stat", "title": "Total Restarts", "datasource": "Prometheus", "gridPos": { "x": 12, "y": 1, "w": 4, "h": 4 }, "options": { "colorMode": "background" }, "fieldConfig": { "defaults": { "thresholds": { "steps": [ { "color": "green", "value": 0 }, { "color": "yellow", "value": 5 }, { "color": "red", "value": 10 } ] } } }, "targets": [ { "expr": "sum(kube_pod_container_status_restarts_total{namespace=\"$namespace\"})", "legendFormat": "Restarts" } ] },
-        { "id": 6, "type": "stat", "title": "Available Replicas", "datasource": "Prometheus", "gridPos": { "x": 16, "y": 1, "w": 4, "h": 4 }, "options": { "colorMode": "background" }, "fieldConfig": { "defaults": { "thresholds": { "steps": [ { "color": "red", "value": 0 }, { "color": "yellow", "value": 1 }, { "color": "green", "value": 2 } ] } } }, "targets": [ { "expr": "sum(kube_deployment_status_replicas_available{namespace=\"$namespace\"})", "legendFormat": "Available" } ] },
-        { "id": 7, "type": "stat", "title": "OOMKilled Containers", "datasource": "Prometheus", "gridPos": { "x": 20, "y": 1, "w": 4, "h": 4 }, "options": { "colorMode": "background" }, "fieldConfig": { "defaults": { "thresholds": { "steps": [ { "color": "green", "value": 0 }, { "color": "red", "value": 1 } ] } } }, "targets": [ { "expr": "sum(kube_pod_container_status_last_terminated_reason{namespace=\"$namespace\", reason=\"OOMKilled\"}) or vector(0)", "legendFormat": "OOMKilled" } ] },
-        { "id": 8, "type": "row", "title": "CPU", "gridPos": { "x": 0, "y": 5, "w": 24, "h": 1 }, "collapsed": false },
-        { "id": 99, "type": "stat", "title": "CPU Requested per Pod", "datasource": "Prometheus", "gridPos": { "x": 0, "y": 14, "w": 6, "h": 5 }, "options": { "colorMode": "background" }, "fieldConfig": { "defaults": { "unit": "cores" } }, "targets": [ { "expr": "sum(kube_pod_container_resource_requests{namespace=\"$namespace\", resource=\"cpu\", pod=~\"$pod\"}) by (pod)", "legendFormat": "request" } ] },
-        { "id": 27, "type": "stat", "title": "Memory Requested per Pod", "datasource": "Prometheus", "gridPos": { "x": 6, "y": 14, "w": 6, "h": 5 }, "options": { "colorMode": "background" }, "fieldConfig": { "defaults": { "unit": "bytes" } }, "targets": [ { "expr": "sum(kube_pod_container_resource_requests{namespace=\"$namespace\", resource=\"memory\", pod=~\"$pod\"}) by (pod)", "legendFormat": "request" } ] },
-        { "id": 28, "type": "stat", "title": "CPU Limit per Pod", "datasource": "Prometheus", "gridPos": { "x": 12, "y": 14, "w": 6, "h": 5 }, "options": { "colorMode": "background" }, "fieldConfig": { "defaults": { "unit": "cores" } }, "targets": [ { "expr": "sum(kube_pod_container_resource_limits{namespace=\"$namespace\", resource=\"cpu\", pod=~\"$pod\"}) by (pod)", "legendFormat": "limit" } ] },
-        { "id": 29, "type": "stat", "title": "Memory Limit per Pod", "datasource": "Prometheus", "gridPos": { "x": 18, "y": 14, "w": 6, "h": 5 }, "options": { "colorMode": "background" }, "fieldConfig": { "defaults": { "unit": "bytes" } }, "targets": [ { "expr": "sum(kube_pod_container_resource_limits{namespace=\"$namespace\", resource=\"memory\", pod=~\"$pod\"}) by (pod)", "legendFormat": "limit" } ] },
-        { "id": 11, "type": "row", "title": "Memory", "gridPos": { "x": 0, "y": 19, "w": 24, "h": 1 }, "collapsed": false },
-        { "id": 12, "type": "timeseries", "title": "Memory Usage per Pod", "datasource": "Prometheus", "gridPos": { "x": 0, "y": 20, "w": 24, "h": 8 }, "fieldConfig": { "defaults": { "unit": "bytes", "color": { "mode": "palette-classic" } } }, "targets": [ { "expr": "sum(container_memory_working_set_bytes{namespace=\"$namespace\", container!=\"POD\", image!=\"\", pod=~\"$pod\"}) by (pod)", "legendFormat": "usage" }, { "expr": "sum(kube_pod_container_resource_requests{resource=\"memory\", namespace=\"$namespace\", pod=~\"$pod\"}) by (pod)", "legendFormat": "request" }, { "expr": "sum(kube_pod_container_resource_limits{resource=\"memory\", namespace=\"$namespace\", pod=~\"$pod\"}) by (pod)", "legendFormat": "limit" } ] },
-        { "id": 13, "type": "row", "title": "Pod Restarts", "gridPos": { "x": 0, "y": 28, "w": 24, "h": 1 }, "collapsed": false },
-        { "id": 14, "type": "timeseries", "title": "Pod Restarts Over Time", "datasource": "Prometheus", "gridPos": { "x": 0, "y": 29, "w": 12, "h": 8 }, "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "palette-classic" } } }, "targets": [ { "expr": "increase(kube_pod_container_status_restarts_total{namespace=\"$namespace\", pod=~\"$pod\"}[1h])", "legendFormat": "restarts" } ] },
-        { "id": 15, "type": "table", "title": "Restart Count per Pod", "datasource": "Prometheus", "gridPos": { "x": 12, "y": 29, "w": 12, "h": 8 }, "targets": [ { "expr": "sum(kube_pod_container_status_restarts_total{namespace=\"$namespace\"}) by (pod, container)", "legendFormat": "restarts", "instant": true } ] },
-        { "id": 16, "type": "row", "title": "Latency", "gridPos": { "x": 0, "y": 37, "w": 24, "h": 1 }, "collapsed": false },
-        { "id": 17, "type": "timeseries", "title": "Request Latency P50 / P95 / P99 per Pod", "datasource": "Prometheus", "gridPos": { "x": 0, "y": 38, "w": 24, "h": 9 }, "fieldConfig": { "defaults": { "unit": "s", "color": { "mode": "palette-classic" } } }, "targets": [ { "expr": "histogram_quantile(0.50, sum(rate(flask_http_request_duration_seconds_bucket{namespace=\"$namespace\", pod=~\"$pod\"}[5m])) by (le, pod))", "legendFormat": "p50" }, { "expr": "histogram_quantile(0.95, sum(rate(flask_http_request_duration_seconds_bucket{namespace=\"$namespace\", pod=~\"$pod\"}[5m])) by (le, pod))", "legendFormat": "p95" }, { "expr": "histogram_quantile(0.99, sum(rate(flask_http_request_duration_seconds_bucket{namespace=\"$namespace\", pod=~\"$pod\"}[5m])) by (le, pod))", "legendFormat": "p99" } ] },
-        { "id": 18, "type": "stat", "title": "P50 Latency", "datasource": "Prometheus", "gridPos": { "x": 0, "y": 47, "w": 8, "h": 4 }, "fieldConfig": { "defaults": { "unit": "s" } }, "targets": [ { "expr": "histogram_quantile(0.50, sum(rate(flask_http_request_duration_seconds_bucket{namespace=\"$namespace\"}[5m])) by (le))", "legendFormat": "P50" } ] },
-        { "id": 19, "type": "stat", "title": "P95 Latency", "datasource": "Prometheus", "gridPos": { "x": 8, "y": 47, "w": 8, "h": 4 }, "fieldConfig": { "defaults": { "unit": "s", "thresholds": { "steps": [ { "color": "green", "value": 0 }, { "color": "yellow", "value": 0.5 }, { "color": "red", "value": 1 } ] } } }, "targets": [ { "expr": "histogram_quantile(0.95, sum(rate(flask_http_request_duration_seconds_bucket{namespace=\"$namespace\"}[5m])) by (le))", "legendFormat": "P95" } ] },
-        { "id": 20, "type": "stat", "title": "P99 Latency", "datasource": "Prometheus", "gridPos": { "x": 16, "y": 47, "w": 8, "h": 4 }, "fieldConfig": { "defaults": { "unit": "s", "thresholds": { "steps": [ { "color": "green", "value": 0 }, { "color": "yellow", "value": 1 }, { "color": "red", "value": 2 } ] } } }, "targets": [ { "expr": "histogram_quantile(0.99, sum(rate(flask_http_request_duration_seconds_bucket{namespace=\"$namespace\"}[5m])) by (le))", "legendFormat": "P99" } ] },
-        { "id": 21, "type": "row", "title": "HTTP Traffic", "gridPos": { "x": 0, "y": 51, "w": 24, "h": 1 }, "collapsed": false },
-        { "id": 22, "type": "timeseries", "title": "HTTP Request Rate per Endpoint", "datasource": "Prometheus", "gridPos": { "x": 0, "y": 52, "w": 12, "h": 8 }, "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "palette-classic" } } }, "targets": [ { "expr": "sum(rate(flask_http_request_total{namespace=\"$namespace\"}[5m])) by (method, path)", "legendFormat": "requests" } ] },
-        { "id": 23, "type": "timeseries", "title": "HTTP Error Rate (4xx / 5xx)", "datasource": "Prometheus", "gridPos": { "x": 12, "y": 52, "w": 12, "h": 8 }, "fieldConfig": { "defaults": { "unit": "reqps", "color": { "mode": "palette-classic" } } }, "targets": [ { "expr": "sum(rate(flask_http_request_total{namespace=\"$namespace\", status=~\"4..\"}[5m])) by (path)", "legendFormat": "4xx" }, { "expr": "sum(rate(flask_http_request_total{namespace=\"$namespace\", status=~\"5..\"}[5m])) by (path)", "legendFormat": "5xx" } ] },
-        { "id": 24, "type": "row", "title": "Network", "gridPos": { "x": 0, "y": 60, "w": 24, "h": 1 }, "collapsed": false },
-        { "id": 25, "type": "timeseries", "title": "Network Receive per Pod", "datasource": "Prometheus", "gridPos": { "x": 0, "y": 61, "w": 12, "h": 8 }, "fieldConfig": { "defaults": { "unit": "Bps", "color": { "mode": "palette-classic" } } }, "targets": [ { "expr": "sum(rate(container_network_receive_bytes_total{namespace=\"$namespace\", pod=~\"$pod\"}[5m])) by (pod)", "legendFormat": "receive" } ] },
-        { "id": 26, "type": "timeseries", "title": "Network Transmit per Pod", "datasource": "Prometheus", "gridPos": { "x": 12, "y": 61, "w": 12, "h": 8 }, "fieldConfig": { "defaults": { "unit": "Bps", "color": { "mode": "palette-classic" } } }, "targets": [ { "expr": "sum(rate(container_network_transmit_bytes_total{namespace=\"$namespace\", pod=~\"$pod\"}[5m])) by (pod)", "legendFormat": "transmit" } ] }
+        {
+          "id": 1,
+          "type": "row",
+          "title": "Overview",
+          "gridPos": {
+            "x": 0,
+            "y": 0,
+            "w": 24,
+            "h": 1
+          },
+          "collapsed": false
+        },
+        {
+          "id": 2,
+          "type": "stat",
+          "title": "Running Pods",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 0,
+            "y": 1,
+            "w": 4,
+            "h": 4
+          },
+          "options": {
+            "colorMode": "background"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": 0
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_status_phase{namespace=\"$namespace\", phase=\"Running\", pod=~\"$pod\"})",
+              "legendFormat": "Running"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "type": "stat",
+          "title": "Pending Pods",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 4,
+            "y": 1,
+            "w": 4,
+            "h": 4
+          },
+          "options": {
+            "colorMode": "background"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 1
+                  },
+                  {
+                    "color": "red",
+                    "value": 3
+                  }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_status_phase{namespace=\"$namespace\", phase=\"Pending\", pod=~\"$pod\"}) or vector(0)",
+              "legendFormat": "Pending"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "type": "stat",
+          "title": "Failed Pods",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 8,
+            "y": 1,
+            "w": 4,
+            "h": 4
+          },
+          "options": {
+            "colorMode": "background"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_status_phase{namespace=\"$namespace\", phase=\"Failed\", pod=~\"$pod\"}) or vector(0)",
+              "legendFormat": "Failed"
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "type": "stat",
+          "title": "Total Restarts",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 12,
+            "y": 1,
+            "w": 4,
+            "h": 4
+          },
+          "options": {
+            "colorMode": "background"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 5
+                  },
+                  {
+                    "color": "red",
+                    "value": 10
+                  }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_container_status_restarts_total{namespace=\"$namespace\", pod=~\"$pod\"})",
+              "legendFormat": "Restarts"
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "type": "stat",
+          "title": "Available Replicas",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 16,
+            "y": 1,
+            "w": 4,
+            "h": 4
+          },
+          "options": {
+            "colorMode": "background"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": 0
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 1
+                  },
+                  {
+                    "color": "green",
+                    "value": 2
+                  }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(kube_deployment_status_replicas_available{namespace=\"$namespace\"})",
+              "legendFormat": "Available"
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "type": "stat",
+          "title": "OOMKilled Containers",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 20,
+            "y": 1,
+            "w": 4,
+            "h": 4
+          },
+          "options": {
+            "colorMode": "background"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_container_status_last_terminated_reason{namespace=\"$namespace\", reason=\"OOMKilled\"}) or vector(0)",
+              "legendFormat": "OOMKilled"
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "type": "row",
+          "title": "CPU",
+          "gridPos": {
+            "x": 0,
+            "y": 5,
+            "w": 24,
+            "h": 1
+          },
+          "collapsed": false
+        },
+        {
+          "id": 99,
+          "type": "stat",
+          "title": "CPU Requested per Pod",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 0,
+            "y": 14,
+            "w": 6,
+            "h": 5
+          },
+          "options": {
+            "colorMode": "background"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "cores"
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_container_resource_requests{namespace=\"$namespace\", resource=\"cpu\", pod=~\"$pod\"}) by (pod)",
+              "legendFormat": "request"
+            }
+          ]
+        },
+        {
+          "id": 27,
+          "type": "stat",
+          "title": "Memory Requested per Pod",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 6,
+            "y": 14,
+            "w": 6,
+            "h": 5
+          },
+          "options": {
+            "colorMode": "background"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes"
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_container_resource_requests{namespace=\"$namespace\", resource=\"memory\", pod=~\"$pod\"}) by (pod)",
+              "legendFormat": "request"
+            }
+          ]
+        },
+        {
+          "id": 28,
+          "type": "stat",
+          "title": "CPU Limit per Pod",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 12,
+            "y": 14,
+            "w": 6,
+            "h": 5
+          },
+          "options": {
+            "colorMode": "background"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "cores"
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_container_resource_limits{namespace=\"$namespace\", resource=\"cpu\", pod=~\"$pod\"}) by (pod)",
+              "legendFormat": "limit"
+            }
+          ]
+        },
+        {
+          "id": 29,
+          "type": "stat",
+          "title": "Memory Limit per Pod",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 18,
+            "y": 14,
+            "w": 6,
+            "h": 5
+          },
+          "options": {
+            "colorMode": "background"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes"
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_container_resource_limits{namespace=\"$namespace\", resource=\"memory\", pod=~\"$pod\"}) by (pod)",
+              "legendFormat": "limit"
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "type": "row",
+          "title": "Memory",
+          "gridPos": {
+            "x": 0,
+            "y": 19,
+            "w": 24,
+            "h": 1
+          },
+          "collapsed": false
+        },
+        {
+          "id": 12,
+          "type": "timeseries",
+          "title": "Memory Usage per Pod",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 0,
+            "y": 20,
+            "w": 24,
+            "h": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "color": {
+                "mode": "palette-classic"
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(container_memory_working_set_bytes{namespace=\"$namespace\", container!=\"POD\", image!=\"\", pod=~\"$pod\"}) by (pod)",
+              "legendFormat": "usage"
+            },
+            {
+              "expr": "sum(kube_pod_container_resource_requests{resource=\"memory\", namespace=\"$namespace\", pod=~\"$pod\"}) by (pod)",
+              "legendFormat": "request"
+            },
+            {
+              "expr": "sum(kube_pod_container_resource_limits{resource=\"memory\", namespace=\"$namespace\", pod=~\"$pod\"}) by (pod)",
+              "legendFormat": "limit"
+            }
+          ]
+        },
+        {
+          "id": 13,
+          "type": "row",
+          "title": "Pod Restarts",
+          "gridPos": {
+            "x": 0,
+            "y": 28,
+            "w": 24,
+            "h": 1
+          },
+          "collapsed": false
+        },
+        {
+          "id": 14,
+          "type": "timeseries",
+          "title": "Pod Restarts Over Time",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 0,
+            "y": 29,
+            "w": 12,
+            "h": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {
+                "mode": "palette-classic"
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_container_status_restarts_total{namespace=\"$namespace\", pod=~\"$pod\"})",
+              "legendFormat": "restarts"
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "type": "table",
+          "title": "Restart Count per Pod",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 12,
+            "y": 29,
+            "w": 12,
+            "h": 8
+          },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_container_status_restarts_total{namespace=\"$namespace\"}) by (pod, container)",
+              "legendFormat": "restarts",
+              "instant": true
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "type": "row",
+          "title": "Latency",
+          "gridPos": {
+            "x": 0,
+            "y": 37,
+            "w": 24,
+            "h": 1
+          },
+          "collapsed": false
+        },
+        {
+          "id": 17,
+          "type": "timeseries",
+          "title": "Request Latency P50 / P95 / P99 per Pod",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 0,
+            "y": 38,
+            "w": 24,
+            "h": 9
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "color": {
+                "mode": "palette-classic"
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.50, sum(rate(flask_http_request_duration_seconds_bucket{namespace=\"$namespace\", pod=~\"$pod\"}[5m])) by (le, pod))",
+              "legendFormat": "p50"
+            },
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(flask_http_request_duration_seconds_bucket{namespace=\"$namespace\", pod=~\"$pod\"}[5m])) by (le, pod))",
+              "legendFormat": "p95"
+            },
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(flask_http_request_duration_seconds_bucket{namespace=\"$namespace\", pod=~\"$pod\"}[5m])) by (le, pod))",
+              "legendFormat": "p99"
+            }
+          ]
+        },
+        {
+          "id": 18,
+          "type": "stat",
+          "title": "P50 Latency",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 0,
+            "y": 47,
+            "w": 8,
+            "h": 4
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s"
+            }
+          },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.50, sum(rate(flask_http_request_duration_seconds_bucket{namespace=\"$namespace\"}[5m])) by (le))",
+              "legendFormat": "P50"
+            }
+          ]
+        },
+        {
+          "id": 19,
+          "type": "stat",
+          "title": "P95 Latency",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 8,
+            "y": 47,
+            "w": 8,
+            "h": 4
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "thresholds": {
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 0.5
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(flask_http_request_duration_seconds_bucket{namespace=\"$namespace\"}[5m])) by (le))",
+              "legendFormat": "P95"
+            }
+          ]
+        },
+        {
+          "id": 20,
+          "type": "stat",
+          "title": "P99 Latency",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 16,
+            "y": 47,
+            "w": 8,
+            "h": 4
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "thresholds": {
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 1
+                  },
+                  {
+                    "color": "red",
+                    "value": 2
+                  }
+                ]
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(flask_http_request_duration_seconds_bucket{namespace=\"$namespace\"}[5m])) by (le))",
+              "legendFormat": "P99"
+            }
+          ]
+        },
+        {
+          "id": 21,
+          "type": "row",
+          "title": "HTTP Traffic",
+          "gridPos": {
+            "x": 0,
+            "y": 51,
+            "w": 24,
+            "h": 1
+          },
+          "collapsed": false
+        },
+        {
+          "id": 22,
+          "type": "timeseries",
+          "title": "HTTP Request Rate per Endpoint",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 0,
+            "y": 52,
+            "w": 12,
+            "h": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "color": {
+                "mode": "palette-classic"
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(rate(flask_http_request_total{namespace=\"$namespace\"}[5m])) by (method, path)",
+              "legendFormat": "requests"
+            }
+          ]
+        },
+        {
+          "id": 23,
+          "type": "timeseries",
+          "title": "HTTP Error Rate (4xx / 5xx)",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 12,
+            "y": 52,
+            "w": 12,
+            "h": 8
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "color": {
+                "mode": "palette-classic"
+              }
+            }
+          },
+          "targets": [
+            {
+              "expr": "sum(rate(flask_http_request_total{namespace=\"$namespace\", status=~\"4..\"}[5m])) by (path)",
+              "legendFormat": "4xx"
+            },
+            {
+              "expr": "sum(rate(flask_http_request_total{namespace=\"$namespace\", status=~\"5..\"}[5m])) by (path)",
+              "legendFormat": "5xx"
+            }
+          ]
+        }
       ]
     }
