@@ -1,0 +1,37 @@
+argo-cd:
+  global:
+    nodeSelector:
+      app: monitoring
+
+  controller:
+    nodeSelector:
+      app: monitoring
+
+  server:
+    nodeSelector:
+      app: monitoring
+
+    service:
+      type: NodePort
+      nodePortHttp: 30080
+      nodePortHttps: 30443
+
+  repoServer:
+    nodeSelector:
+      app: monitoring
+
+  applicationSet:
+    nodeSelector:
+      app: monitoring
+
+  notifications:
+    nodeSelector:
+      app: monitoring
+
+  redis:
+    nodeSelector:
+      app: monitoring
+
+  dex:
+    nodeSelector:
+      app: monitoring

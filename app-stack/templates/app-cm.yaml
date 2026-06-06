@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: app-config
-  namespace: application
+  namespace: student-api-ns
 data:
   DB_USER: {{ .Values.database.user }}
   DB_NAME: {{ .Values.database.name }}

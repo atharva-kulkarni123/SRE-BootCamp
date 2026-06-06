@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: postgre-db
-  namespace: database
+  namespace: student-api-ns
   labels:
     db: postgre
 spec:
@@ -21,7 +21,13 @@ spec:
       - name: postgre-db
         image: postgres:16
         resources:
-         
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        resources:
         ports:
         - containerPort: {{ .Values.database.port }}
           name: db

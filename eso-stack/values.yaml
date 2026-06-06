@@ -1,0 +1,11 @@
+external-secrets:
+  nodeSelector:
+    app: monitoring
+
+  webhook:
+    nodeSelector:
+      app: monitoring
+
+  certController:
+    nodeSelector:
+      app: monitoring

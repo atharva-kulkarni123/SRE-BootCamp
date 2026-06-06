@@ -1,0 +1,12 @@
+apiVersion: v2
+name: platform-addons
+description: Platform Addons
+type: application
+
+version: 0.1.0
+appVersion: "1.0.0"
+
+dependencies:
+  - name: external-secrets
+    version: 0.20.4
+    repository: https://charts.external-secrets.io

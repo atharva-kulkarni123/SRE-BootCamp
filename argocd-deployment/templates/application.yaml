@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: web-api     # name of the application in ArgoCD
+  namespace: argocd    # must be the namespace where ArgoCD is installed
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-weight: "2"
+spec:
+  project: web-api-project   # name of the project in ArgoCD, create a new custom project if needed --> refer appProject.yaml
+  destination:
+    namespace: student-api-ns      # namespace where manifests will be deployed
+    server: https://kubernetes.default.svc
+  source:
+    repoURL: "https://github.com/atharva-kulkarni123/SRE-BootCamp.git"
+    targetRevision: main
+    path: app-stack
+    helm:
+      releaseName: web-api
+      valueFiles:
+        - values.yaml
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
