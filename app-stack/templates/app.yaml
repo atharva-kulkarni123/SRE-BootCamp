@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: web-application
-  namespace: application
+  namespace: student-api-ns
   labels: 
     app: web-application
 spec:

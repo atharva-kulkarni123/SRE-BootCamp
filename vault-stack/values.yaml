@@ -1,0 +1,11 @@
+vault:
+  injector:
+    enabled: true
+    nodeSelector:
+      app: monitoring       # ✅ matches minikube-m03 label
+
+  server:
+    nodeSelector:
+      app: monitoring       # ✅ matches minikube-m03 label
+    dev:
+      enabled: true

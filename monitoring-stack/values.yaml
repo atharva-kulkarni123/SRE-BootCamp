@@ -1,49 +1,37 @@
 kube-prometheus-stack:
-
-  # ── Grafana ──────────────────────────────────────────────────────────────
   grafana:
     enabled: true
-
     nodeSelector:
       app: monitoring
 
-    adminPassword: admin   # change this in production via a secret
-
-    # # Tell Grafana to load dashboards from ConfigMaps with this label
-    # sidecar:
-    #   dashboards:
-    #     enabled: true
-    #     label: grafana_dashboard       # Grafana sidecar watches for ConfigMaps with this label
-    #     labelValue: "1"
-    #     folder: /tmp/dashboards
-    #     searchNamespace: ALL           # look across all namespaces
+    adminPassword: admin
 
     service:
       type: NodePort
-      nodePort: 32000                 # access Grafana at http://<minikube-ip>:32000
+      nodePort: 32000
 
-  # ── Prometheus ───────────────────────────────────────────────────────────
   prometheus:
     enabled: true
 
-    nodeSelector:
-      role: monitoring
+    prometheusSpec:
+      nodeSelector:
+        app: monitoring
 
-    # prometheusSpec:
-    #   # Scrape any ServiceMonitor across all namespaces
-    #   serviceMonitorSelectorNilUsesHelmValues: false
-    #   podMonitorSelectorNilUsesHelmValues: false
-
-    #   # How long to keep metrics
-    #   retention: 7d
-
-  # ── Disable what we don't need for local minikube ────────────────────────
   alertmanager:
     enabled: false
 
-  nodeExporter:
-    enabled: true          # gives CPU/memory per node
+    alertmanagerSpec:
+      nodeSelector:
+        app: monitoring
 
-  kubeStateMetrics:
-    enabled: true          # gives replica count, pod status etc.
- 
+  kube-state-metrics:
+    nodeSelector:
+      app: monitoring
+
+  prometheus-node-exporter:
+    nodeSelector:
+      app: monitoring
+
+  prometheusOperator:
+    nodeSelector:
+      app: monitoring

@@ -11,13 +11,13 @@ image:
 appservice:
   type: NodePort
   port: 5000
-  nodePort: 30080
+  nodePort: 30081
   containerPort: 5000
   targetport: 5000
 
 
 database:
-  host: postgres-service.database.svc.cluster.local
+  host: postgres-service.student-api-ns.svc.cluster.local
   port: 5432
   name: students_db
   user: postgres

@@ -1,0 +1,10 @@
+apiVersion: v2
+name: argocd-stack
+description: Install Argo CD
+type: application
+version: 0.1.0
+appVersion: "3.1.0"
+dependencies:
+  - name: argo-cd
+    version: "7.8.26"
+    repository: "https://argoproj.github.io/argo-helm"

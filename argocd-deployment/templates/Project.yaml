@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: web-api-project
+  namespace: argocd
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-weight: "1"
+spec:
+  description: Project for Web-API application
+
+  # ✅ Allow only these Git repos as sources
+  sourceRepos:
+    - 'https://github.com/atharva-kulkarni123/SRE-BootCamp.git'
+
+  # ✅ Allow deployments only to these clusters/namespaces
+  destinations:
+    - namespace: student-api-ns
+      server: https://kubernetes.default.svc
+    - namespace: database
+      server: https://kubernetes.default.svc
+    - namespace: monitoring
+      server: https://kubernetes.default.svc
+    - namespace: vault
+      server: https://kubernetes.default.svc
+
+  # ✅ (Optional) Allow specific resource types
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
