@@ -9,3 +9,6 @@ dependencies:
   - name: vault
     version: "0.30.0"
     repository: "https://helm.releases.hashicorp.com"
+  - name: external-secrets
+    version: 0.20.4
+    repository: https://charts.external-secrets.io

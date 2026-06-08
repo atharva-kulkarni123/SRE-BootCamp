@@ -8,7 +8,7 @@ metadata:
 spec:
   namespaceSelector:
     matchNames:
-      - application
+      - student-api-ns
   selector:
     matchLabels:
       app: web-application-service
