@@ -142,13 +142,13 @@ helm dependency build
 ### 3.2 Install ESO
 
 ```bash
-helm install external-secrets . -f values.yaml -n vault
+helm install external-secrets . -f values.yaml -n eso
 ```
 
 ### 3.3 Verify ESO is Running
 
 ```bash
-kubectl get pods -n vault
+kubectl get pods -n eso
 ```
 
 You should see both `vault-0` and the `external-secrets` pods running.
@@ -223,7 +223,7 @@ kubectl -n argocd get secret argocd-initial-admin-secret \
 ### 5.5 Access ArgoCD UI
 
 ```bash
-kubectl port-forward svc/argocd-server -n argocd 8080:443
+kubectl port-forward svc/argocd-server -n argocd 8000:80
 ```
 
 Open [https://localhost:8080](https://localhost:8080)
@@ -261,27 +261,26 @@ helm dependency build
 ### 6.2 Install the App
 
 ```bash
-helm install web-app . -f values.yaml -n application
+helm install web-app . -f values.yaml -n student-api-ns
 ```
 
 ### 6.3 Verify the App is Running
 
 ```bash
-kubectl get pods -n application
-kubectl get pods -n database
+kubectl get pods -n student-api-ns
 ```
 
 ### 6.4 Access the App
 
 ```bash
 # Using minikube service (opens in browser automatically)
-minikube service web-application-service -n application
+minikube service web-application-service -n student-api-ns
 ```
 
 Or port-forward manually:
 
 ```bash
-kubectl port-forward svc/web-api 5000:5000 -n application
+kubectl port-forward svc/web-application-service 5000:5000 -n student-api-ns
 ```
 
 Then open [http://localhost:5000](http://localhost:5000).
