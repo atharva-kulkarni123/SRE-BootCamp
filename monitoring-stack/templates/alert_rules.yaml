@@ -1,0 +1,313 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-alert-rules
+  namespace: monitoring
+  labels:
+    grafana_alert: "1"
+data:
+  alert-rules.yaml: |
+    apiVersion: 1
+    groups:
+      - orgId: 1
+        name: sre-bootcamp-alerts
+        folder: SRE Alerts
+        interval: 1m
+        rules:
+ 
+          # ── 1. Pod Restart Alert ──────────────────────────────────────────
+          - uid: pod-restart-alert
+            title: Pod Restarted
+            condition: C
+            data:
+              - refId: A
+                queryType: ''
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  expr: >
+                    increase(kube_pod_container_status_restarts_total{namespace=~".+"}[5m]) > 0
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: A
+              - refId: C
+                queryType: ''
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - A
+                      reducer:
+                        type: last
+                      type: query
+                  datasource:
+                    type: __expr__
+                    uid: __expr__
+                  expression: A
+                  refId: C
+                  type: threshold
+            noDataState: OK
+            execErrState: Alerting
+            for: 0s
+            annotations:
+              summary: "Pod {{ $labels.pod }} restarted in namespace {{ $labels.namespace }}"
+              description: >
+                Pod: {{ $labels.pod }}
+                Namespace: {{ $labels.namespace }}
+                Container: {{ $labels.container }}
+                Restart count increased by {{ $values.A }} in last 5 minutes.
+            labels:
+              severity: warning
+            isPaused: false
+ 
+          # ── 2. High Latency Alert (P99 > 50ms) ───────────────────────────
+          - uid: high-latency-alert
+            title: High Request Latency
+            condition: C
+            data:
+              - refId: A
+                queryType: ''
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  expr: >
+                    histogram_quantile(0.99,
+                      sum(rate(flask_http_request_duration_seconds_bucket{namespace=~".+"}[5m]))
+                      by (le, pod, namespace)
+                    ) * 1000 > 50
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: A
+              - refId: C
+                queryType: ''
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 50
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - A
+                      reducer:
+                        type: last
+                      type: query
+                  datasource:
+                    type: __expr__
+                    uid: __expr__
+                  expression: A
+                  refId: C
+                  type: threshold
+            noDataState: NoData
+            execErrState: Alerting
+            for: 1m
+            annotations:
+              summary: "High P99 latency on pod {{ $labels.pod }}"
+              description: >
+                Pod: {{ $labels.pod }}
+                Namespace: {{ $labels.namespace }}
+                P99 Latency: {{ $values.A | humanizeDuration }}ms
+                Threshold: 50ms
+            labels:
+              severity: warning
+            isPaused: false
+ 
+          # ── 3a. CPU Utilization > 70% ─────────────────────────────────────
+          - uid: high-cpu-alert
+            title: High CPU Utilization
+            condition: C
+            data:
+              - refId: A
+                queryType: ''
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  expr: >
+                    sum(rate(container_cpu_usage_seconds_total{namespace=~".+", container!="POD", image!=""}[5m]))
+                      by (pod, namespace)
+                    /
+                    sum(kube_pod_container_resource_limits{resource="cpu", namespace=~".+"}[5m])
+                      by (pod, namespace)
+                    * 100 > 70
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: A
+              - refId: C
+                queryType: ''
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 70
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - A
+                      reducer:
+                        type: last
+                      type: query
+                  datasource:
+                    type: __expr__
+                    uid: __expr__
+                  expression: A
+                  refId: C
+                  type: threshold
+            noDataState: NoData
+            execErrState: Alerting
+            for: 2m
+            annotations:
+              summary: "High CPU usage on pod {{ $labels.pod }}"
+              description: >
+                Pod: {{ $labels.pod }}
+                Namespace: {{ $labels.namespace }}
+                CPU Utilization: {{ $values.A }}% (threshold: 70%)
+            labels:
+              severity: critical
+            isPaused: false
+ 
+          # ── 3b. Memory Utilization > 70% ──────────────────────────────────
+          - uid: high-memory-alert
+            title: High Memory Utilization
+            condition: C
+            data:
+              - refId: A
+                queryType: ''
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  expr: >
+                    sum(container_memory_working_set_bytes{namespace=~".+", container!="POD", image!=""})
+                      by (pod, namespace)
+                    /
+                    sum(kube_pod_container_resource_limits{resource="memory", namespace=~".+"})
+                      by (pod, namespace)
+                    * 100 > 70
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: A
+              - refId: C
+                queryType: ''
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 70
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - A
+                      reducer:
+                        type: last
+                      type: query
+                  datasource:
+                    type: __expr__
+                    uid: __expr__
+                  expression: A
+                  refId: C
+                  type: threshold
+            noDataState: NoData
+            execErrState: Alerting
+            for: 2m
+            annotations:
+              summary: "High memory usage on pod {{ $labels.pod }}"
+              description: >
+                Pod: {{ $labels.pod }}
+                Namespace: {{ $labels.namespace }}
+                Memory Utilization: {{ $values.A }}% (threshold: 70%)
+            labels:
+              severity: critical
+            isPaused: false
+ 
+          # ── 4. 5xx Error Rate Alert ───────────────────────────────────────
+          - uid: error-rate-5xx-alert
+            title: High 5xx Error Rate
+            condition: C
+            data:
+              - refId: A
+                queryType: ''
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: prometheus
+                model:
+                  expr: >
+                    sum(rate(flask_http_request_total{namespace=~".+", status=~"5.."}[5m]))
+                      by (pod, namespace, path) > 0
+                  intervalMs: 1000
+                  maxDataPoints: 43200
+                  refId: A
+              - refId: C
+                queryType: ''
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: __expr__
+                model:
+                  conditions:
+                    - evaluator:
+                        params:
+                          - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                          - A
+                      reducer:
+                        type: last
+                      type: query
+                  datasource:
+                    type: __expr__
+                    uid: __expr__
+                  expression: A
+                  refId: C
+                  type: threshold
+            noDataState: OK
+            execErrState: Alerting
+            for: 1m
+            annotations:
+              summary: "5xx errors detected on pod {{ $labels.pod }}"
+              description: >
+                Pod: {{ $labels.pod }}
+                Namespace: {{ $labels.namespace }}
+                Path: {{ $labels.path }}
+                5xx Error Rate: {{ $values.A }} req/s
+            labels:
+              severity: critical
+            isPaused: false
