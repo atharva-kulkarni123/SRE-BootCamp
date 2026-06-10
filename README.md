@@ -112,7 +112,7 @@ helm install vault . -f values.yaml -n vault
 kubectl get pods -n vault
 ```
 
-Wait until `vault-0` shows `Running`.
+Wait until `vault-0` and `external-secret operator` shows `Running`.
 
 ### 2.4 Port-forward Vault
 
@@ -124,7 +124,6 @@ kubectl port-forward -n vault svc/vault 8200:8200
 
 Add secrets in vault via UI
 1. DB password
-2. git PAT token
 
 ---
 
@@ -132,26 +131,18 @@ Add secrets in vault via UI
 
 ESO watches Vault and automatically creates Kubernetes `Secret` objects for your workloads. It is installed in the `vault` namespace so it can communicate directly with Vault.
 
-### 3.1 Build Chart Dependencies
-
-```bash
-cd eso-stack
-helm dependency build
-```
-
-### 3.2 Install ESO
+### 3.1 Install Chart
 
 ```bash
 helm install external-secrets . -f values.yaml -n eso
 ```
 
-### 3.3 Verify ESO is Running
+### 3.2 Verify ESO CRD is Running
 
 ```bash
-kubectl get pods -n eso
+kubectl get clustersecretstore -n eso
 ```
 
-You should see both `vault-0` and the `external-secrets` pods running.
 
 ---
 
@@ -246,47 +237,3 @@ In the ArgoCD UI, create a new app pointing to:
 From this point, any push to `app-stack/` on `main` will be automatically synced to your cluster by ArgoCD.
 
 ---
-
-## Phase 6 — App Deployment (Helm)
-
-> If you set up ArgoCD in Phase 5 and registered the app, ArgoCD will deploy this automatically. Use the manual steps below only if you want to deploy without ArgoCD.
-
-### 6.1 Build Chart Dependencies
-
-```bash
-cd app-stack
-helm dependency build
-```
-
-### 6.2 Install the App
-
-```bash
-helm install web-app . -f values.yaml -n student-api-ns
-```
-
-### 6.3 Verify the App is Running
-
-```bash
-kubectl get pods -n student-api-ns
-```
-
-### 6.4 Access the App
-
-```bash
-# Using minikube service (opens in browser automatically)
-minikube service web-application-service -n student-api-ns
-```
-
-Or port-forward manually:
-
-```bash
-kubectl port-forward svc/web-application-service 5000:5000 -n student-api-ns
-```
-
-Then open [http://localhost:5000](http://localhost:5000).
-
-### 6.5 Verify Metrics
-
-```bash
-curl localhost:5000/metrics
-```
