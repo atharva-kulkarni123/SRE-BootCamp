@@ -19,7 +19,7 @@ spec:
         role: app
       containers:
       - name: web-application
-        image: atharvak2427/updated-student-api:latest
+        image: atharvak2427/updated-student-api:{{ .Values.app.imageTag }}
         resources:
           requests:
             memory: "256Mi"

@@ -1,6 +1,7 @@
 app:
   replicaCount: 2
   flaskEnv: development
+  imageTag: "latest" 
 db: 
   replicaCount: 1
 image:
